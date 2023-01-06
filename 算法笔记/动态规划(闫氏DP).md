@@ -79,7 +79,7 @@ int main(){
 		if(x==0&&y==0&&k==0) break;
 		w[x][y]=k;
 	}
-//	while (cin>>x>>y>>k,x||y||k) w[x][y]=k;
+//while (cin>>x>>y>>k,x||y||k) w[x][y]=k;
 //k,i1,i2,k==i1+j1==i2+j2,f[k][i1][j1]=从1,1点到[i1,j1],[i2,j2]的最大路径和 
 	for(int k=2;k<=n*2;k++){
 		for(int i1=1;i1<=n;i1++){
@@ -108,7 +108,218 @@ int main(){
 
 ## 最长上升子序列模型
 
+```cpp
+//求长度就把带星号的行h[i]换成1
+int res=0; //res代表最大长度或价值
+for(int i=1;i<=n;i++){
+*	f[i]=h[i]; //求价值
+	for(int j=1;j<i;j++){
+		if(h[i]>h[j]){
+*			f[i]=max(f[i],f[j]+h[i]);
+		}
+	}
+	res=max(res,f[i]); 
+} //从左到右的最长上升或最大上升值
+```
+
+
+
 ## 背包模型
+
+### 01背包
+
+每件物品最多只用一次
+
+![DP-01背包.jpg](./动态规划(闫氏DP).assets/45680_59e05a6607-DP-01背包.jpg)
+
+
+
+二维表示
+
+```cpp
+int n,m; //n物品数量，m背包容量
+int v[N],w[N]//v[N]代表体积 w[N]代表价值
+int f[N][N] //状态
+//f[i][j] i表示第i件物品，j表示体积
+for(int i=1;i<=n;i++){
+    for(int j=0;j<=m;j++){
+        f[i][j]=f[i-1][j] //选i的情况下一定存在
+        if(j>=v[i]) f[i][j]=max(f[i][j],f[i-1][j-v[i]]+w[i]);
+	}
+}
+cout<<f[n][m]<<endl;
+```
+
+
+
+转化为一维（建议画图理解）
+
+```cpp
+int n,m; //n物品数量，m背包容量
+int v[N],w[N]//v[N]代表体积 w[N]代表价值
+int f[N] //状态
+for(int i=1;i<=n;i++){
+    for(int j=m;j>=v[i];j--)
+        f[j]=max(f[j],f[j-v[i]]+w[i]);
+	}
+}
+cout<<f[m]<<endl;
+```
+
+
+
+### 完全背包
+
+每件物品有无限个
+
+![DP-完全背包.jpg](./动态规划(闫氏DP).assets/45680_6064c89007-DP-完全背包.jpg)
+
+**未优化:**
+
+```cpp
+int n,m; //n物品数量，m背包容量
+int v[N],w[N]//v[N]代表体积 w[N]代表价值
+int f[N][M];    // f[i][j]表示在考虑前i个物品后，背包容量为j条件下的最大价值
+for (int i=1;i<=n;i++)
+    for (int j=1;j<=m;j++)
+        for (int k=0;k*v[i]<=j;k++)
+            f[i][j]=max(f[i][j],f[i-1][j-k*v[i]]+k*w[i]);
+```
+
+**优化后:**
+
+二维表示:
+
+```cpp
+int n,m; //n物品数量，m背包容量
+int v[N],w[N]//v[N]代表体积 w[N]代表价值
+int f[N][N] //状态
+//f[i][j] i表示第i件物品，j表示体积
+for(int i=1;i<=n;i++){
+    for(int j=0;j<=m;j++){
+        f[i][j]=f[i-1][j] //选i的情况下一定存在
+        if(j>=v[i]) f[i][j]=max(f[i][j],f[i][j-v[i]]+w[i]);
+	}
+}
+cout<<f[n][m]<<endl;
+```
+
+
+
+转化为一维
+
+```cpp
+int n,m; //n物品数量，m背包容量
+int v[N],w[N]//v[N]代表体积 w[N]代表价值
+int f[N] //状态
+//f[i][j] i表示第i件物品，j表示体积
+for(int i=1;i<=n;i++){
+    for(int j=v[i];j<=m;j++){
+        f[j]=max(f[j],f[j-v[i]]+w[i]);
+	}
+}
+cout<<f[n][m]<<endl;
+```
+
+
+
+### 多重背包问题
+
+每个物品数量不同
+
+**未优化**：
+
+```cpp
+int n,m; //n物品数量，m背包容量
+int v[N],w[N]//v[N]代表体积 w[N]代表价值
+int f[N][M];    // f[i][j]表示在考虑前i个物品后，背包容量为j条件下的最大价值
+for (int i=1;i<=n;i++)
+    for (int j=1;j<=m;j++)
+        for (int k=0;k<=s[i]&&k*v[i]<=j;k++)
+            f[i][j]=max(f[i][j],f[i-1][j-k*v[i]]+k*w[i]);
+```
+
+**优化后**:
+
+贪心后--多个物品看作一个物品，使用01背包求解
+时间复杂度 $O(nmlogs)$
+二进制优化后：
+
+```cpp
+int n, m; //n物品数量，m背包容量
+int v[N], w[N]; //v[N]代表体积 w[N]代表价值
+int f[M]; //状态
+cin>>n>>m;
+int cnt=0;
+for (int i = 1; i <= n; i ++ ){
+    int a, b, s;
+    cin >> a >> b >> s;
+    int k = 1;
+	// 读入物品个数时顺便打包
+    int k = 1;      // 当前包裹大小
+    while (k <= s)
+    {
+        cnt ++ ;            // 实际物品种数
+        v[cnt] = a * k;
+        w[cnt] = b * k;
+        s -= k;
+        k *= 2;             // 倍增包裹大小
+    }
+    if (s > 0)
+    {
+        // 不足的单独放一个，即C
+        cnt ++ ;
+        v[cnt] = a * s;
+        w[cnt] = b * s;
+    }
+}
+n = cnt;        // 更新物品种数
+
+// 转换成01背包问题
+for (int i = 1; i <= n; i ++ )
+    for (int j = m; j >= v[i]; j -- )
+        f[j] = max(f[j], f[j - v[i]] + w[i]);
+cout << f[m] << endl;
+```
+
+
+
+### 分组背包问题
+
+分n组，每一组有若干个物品，每组最多选一个物品
+
+实际上是带有约束的01背包问题
+
+![image-20230106192723175](./动态规划(闫氏DP).assets/image-20230106192723175.png)
+
+```cpp
+int n;              // 物品总数
+int m;              // 背包容量
+int v[N][S];         // 重量 
+int w[N][S];         // 价值
+int s[N];           // 各组物品种数
+
+// 读入数据
+ for(int i=1;i<=n;i++)
+ {
+     cin>>s[i];
+     for(int j=1;j<=s[i];j++) cin>>v[i][j]>>w[i][j]; 
+ }
+
+// 处理数据
+for(int i=1;i<=n;i++){
+    for(int j=m;j>=1;j--){
+        for(int k=1;k<=s[i];k++){
+            if(v[i][k]<=j){
+                f[j]=max(f[j],f[j-v[i][k]]+w[i][k]);
+            }
+        }
+    }
+}    
+cout << f[m] << endl;
+```
+
+
 
 ## 状态机模型
 
