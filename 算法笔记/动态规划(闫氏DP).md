@@ -195,6 +195,28 @@ cout<<f[m]<<endl;
 
 
 
+二维费用的背包问题（01背包板子）：
+
+![image-20230109114744053](./动态规划(闫氏DP).assets/image-20230109114744053.png)
+
+```cpp
+int n,v,m;
+int f[N][N];
+cin>>n>>V>>M; //物品数量，背包容积，背包最大负重
+for(int i=1;i<=n;i++){
+    int v,m,w;
+    cin>>v>>m>>w; //体积，重量，价值
+    for(int j=V;j>=v;j--){
+        for(int k=M;k>=m;k--){
+            f[j][k]=max(f[j][k],f[j-v][k-m]+w);
+        }
+    }
+}
+cout<<f[V][M]<<endl;
+```
+
+
+
 ### 完全背包
 
 每件物品有无限个
